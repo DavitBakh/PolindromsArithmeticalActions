@@ -5,28 +5,28 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define PolyndromMaxSize 50
+#define PolynomMaxSize 50
 #define ExpressionMaxSize 10
 
-int* GetPalindromeCoefficientArray(char palindrome[PolyndromMaxSize], int palindromSize, int* outResultSize)
+int* GetPolynomCoefficientArray(char polynome[PolynomMaxSize], int polynomSize, int* outResultSize)
 {
-	int* resultPalindrome = (int*)calloc(PolyndromMaxSize, sizeof(int));
-	char palindromSegments[PolyndromMaxSize / 4 + 5][ExpressionMaxSize];
+	int* resultPolynom = (int*)calloc(PolynomMaxSize, sizeof(int));
+	char polynomSegments[PolynomMaxSize / 4 + 5][ExpressionMaxSize];
 
 	int segmentsCount = 0;
-	for (int i = 0, k = 0; i < palindromSize; i++)
+	for (int i = 0, k = 0; i < polynomSize; i++)
 	{
-		if (palindrome[i] != '+' && palindrome[i] != '-')
+		if (polynome[i] != '+' && polynome[i] != '-')
 		{
-			palindromSegments[segmentsCount][k++] = palindrome[i];
-			if (i + 1 == palindromSize)
-				palindromSegments[segmentsCount][k] = '\0'; //string end
+			polynomSegments[segmentsCount][k++] = polynome[i];
+			if (i + 1 == polynomSize)
+				polynomSegments[segmentsCount][k] = '\0'; //string end
 		}
 		else
 		{
-			palindromSegments[segmentsCount][k] = '\0'; //string end
+			polynomSegments[segmentsCount][k] = '\0'; //string end
 			k = 0;
-			palindromSegments[++segmentsCount][k++] = palindrome[i];
+			polynomSegments[++segmentsCount][k++] = polynome[i];
 		}
 	}
 	segmentsCount++;
@@ -34,7 +34,7 @@ int* GetPalindromeCoefficientArray(char palindrome[PolyndromMaxSize], int palind
 	int maxIndex = 0;
 	for (int i = 0; i < segmentsCount; i++)
 	{
-		char* current = palindromSegments[i];
+		char* current = polynomSegments[i];
 		int coefficient = atoi(current);
 		int expressionSize = strlen(current);
 
@@ -74,7 +74,7 @@ int* GetPalindromeCoefficientArray(char palindrome[PolyndromMaxSize], int palind
 			}
 		}
 
-		resultPalindrome[index] = coefficient;
+		resultPolynom[index] = coefficient;
 
 		if (!i)
 			maxIndex = index;
@@ -82,41 +82,47 @@ int* GetPalindromeCoefficientArray(char palindrome[PolyndromMaxSize], int palind
 
 
 	*outResultSize = maxIndex + 1;
-	return resultPalindrome;
+	return resultPolynom;
 }
+
+int* GetPolynomSum(char polynome1[PolynomMaxSize], int polynom1Size, char polynome2[PolynomMaxSize], int polynom2Size, int* outResultSize)
+{
+
+}
+
 
 int main(void)
 {
-	char* palindrome1 = (char*)malloc(PolyndromMaxSize);
-	char* palindrome2 = (char*)malloc(PolyndromMaxSize);
+	char* polynome1 = (char*)malloc(PolynomMaxSize);
+	char* polynome2 = (char*)malloc(PolynomMaxSize);
 	char action[6];
 
-	strcpy(palindrome1, "5x^3+2x^2+x+1");
-	strcpy(palindrome2, "1x^3+5x+3");
+	strcpy(polynome1, "5x^3+2x^2+x+1");
+	strcpy(polynome2, "1x^3+5x+3");
 
 
-	fgets(palindrome1, PolyndromMaxSize, stdin);
-	fgets(action, PolyndromMaxSize, stdin);
-	fgets(palindrome2, sizeof(palindrome2), stdin);
+	fgets(polynome1, PolynomMaxSize, stdin);
+	fgets(action, PolynomMaxSize, stdin);
+	fgets(polynome2, sizeof(polynome2), stdin);
 
-	int palindrome1Size = strlen(palindrome1);
-	int palindrome2Size = strlen(palindrome2);
+	int polynome1Size = strlen(polynome1);
+	int polynome2Size = strlen(polynome2);
 
 	int resultSize1 = 0;
-	int* resultPolyndrom1 = GetPalindromeCoefficientArray(palindrome1, palindrome1Size, &resultSize1);
+	int* resultPolynom1 = GetPolynomCoefficientArray(polynome1, polynome1Size, &resultSize1);
 
 	int resultSize2 = 0;
-	int* resultPolyndrom2 = GetPalindromeCoefficientArray(palindrome2, palindrome2Size, &resultSize2);
+	int* resultPolynom2 = GetPolynomCoefficientArray(polynome2, polynome2Size, &resultSize2);
 
 	/*for (int i = 0; i < resultSize1; i++)
 	{
-		printf("%d ", resultPolyndrom1[i]);
+		printf("%d ", resultPolynom1[i]);
 	}*/
 
-	free(palindrome1);
-	free(palindrome2);
-	free(resultPolyndrom1);
-	free(resultPolyndrom2);
+	free(polynome1);
+	free(polynome2);
+	free(resultPolynom1);
+	free(resultPolynom2);
 
 	return 0;
 }
