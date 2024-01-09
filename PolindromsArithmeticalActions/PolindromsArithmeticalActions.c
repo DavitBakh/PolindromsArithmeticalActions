@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <windows.h>
 
 #define PolynomMaxSize 50
 #define ExpressionMaxSize 10
@@ -11,6 +12,10 @@
 //TODO Minimaize array size
 void PrintPolynom(int polynom[PolynomMaxSize], int size)
 {
+	HANDLE  hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, 2);
+	printf("\n");
+
 	for (int i = size - 1; i >= 0; i--)
 	{
 		if (polynom[i] != 0)
@@ -50,6 +55,8 @@ void PrintPolynom(int polynom[PolynomMaxSize], int size)
 			}
 		}
 	}
+
+	SetConsoleTextAttribute(hConsole, 15);
 }
 
 int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, int* outResultSize)
@@ -171,6 +178,17 @@ int* GetPolynomsSubstract(int polynom1[PolynomMaxSize], int polynom1Size, int po
 	return resultPolynom;
 }
 
+int* GetDerivative(int polynom[PolynomMaxSize], int size, int* outResultSize)
+{
+	*outResultSize = size - 1;
+	int* resultPolynom = (int*)calloc(*outResultSize, sizeof(int));
+
+	for (int i = 1; i < size; i++)
+		resultPolynom[i - 1] = i * polynom[i];
+
+	return resultPolynom;
+}
+
 int main(void)
 {
 	char* polynom1 = (char*)malloc(PolynomMaxSize);
@@ -215,7 +233,7 @@ int main(void)
 	case'/':
 		break;
 	case'\'':
-
+		resultPolynom = GetDerivative(polynom1Coefficients, coefficients1Size, &resultSize);
 		break;
 	default:
 		printf("Wrong Action!!!");
