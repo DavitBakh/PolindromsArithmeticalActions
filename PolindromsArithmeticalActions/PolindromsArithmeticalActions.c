@@ -24,14 +24,14 @@ void PrintPolynom(int polynom[PolynomMaxSize], int size)
 			{
 				if (polynom[i] > 0)
 				{
-					printf("+%dx^%d",polynom[i], i);
+					printf("+%dx^%d", polynom[i], i);
 				}
 				else
 				{
 					printf("%dx^%d", polynom[i], i);
 				}
 			}
-			else if(i == 1)
+			else if (i == 1)
 			{
 				if (polynom[i] > 0)
 				{
@@ -55,6 +55,9 @@ void PrintPolynom(int polynom[PolynomMaxSize], int size)
 			}
 		}
 	}
+
+	if (size == 0)
+		printf("0");
 
 	SetConsoleTextAttribute(hConsole, 15);
 }
@@ -178,13 +181,35 @@ int* GetPolynomsSubstract(int polynom1[PolynomMaxSize], int polynom1Size, int po
 	return resultPolynom;
 }
 
-int* GetDerivative(int polynom[PolynomMaxSize], int size, int* outResultSize)
+int* GetPolynomDerivative(int polynom[PolynomMaxSize], int size, int* outResultSize)
 {
 	*outResultSize = size - 1;
 	int* resultPolynom = (int*)calloc(*outResultSize, sizeof(int));
 
 	for (int i = 1; i < size; i++)
 		resultPolynom[i - 1] = i * polynom[i];
+
+	return resultPolynom;
+}
+
+int* MultiplyPolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2[PolynomMaxSize], int polynom2Size, int* outResultSize)
+{
+	*outResultSize = polynom1Size - 1 + polynom2Size;
+	int* resultPolynom = (int*)malloc(*outResultSize * sizeof(int));
+
+	for (int k = 0; k < *outResultSize; k++)
+	{
+		int result = 0;
+		for (int i = 0; i <= k; i++)
+		{
+			if (i >= polynom1Size || k - i >= polynom2Size)
+				continue;
+
+			result += polynom1[i] * polynom2[k - i];
+		}
+
+		resultPolynom[k] = result;
+	}
 
 	return resultPolynom;
 }
@@ -228,12 +253,13 @@ int main(void)
 		resultPolynom = GetPolynomsSubstract(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize);
 		break;
 	case'*':
-
+		resultPolynom = MultiplyPolynoms(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize);
 		break;
 	case'/':
+
 		break;
 	case'\'':
-		resultPolynom = GetDerivative(polynom1Coefficients, coefficients1Size, &resultSize);
+		resultPolynom = GetPolynomDerivative(polynom1Coefficients, coefficients1Size, &resultSize);
 		break;
 	default:
 		printf("Wrong Action!!!");
@@ -244,6 +270,7 @@ int main(void)
 
 	free(polynom1Coefficients);
 	free(polynom2Coefficients);
+	free(resultPolynom);
 
 	return 0;
 }
