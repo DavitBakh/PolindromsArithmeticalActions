@@ -8,7 +8,51 @@
 #define PolynomMaxSize 50
 #define ExpressionMaxSize 10
 
-int* GetPolynomCoefficientArray(char polynome[PolynomMaxSize], int polynomSize, int* outResultSize)
+//TODO Minimaize array size
+void PrintPolynom(int polynom[PolynomMaxSize], int size)
+{
+	for (int i = size - 1; i >= 0; i--)
+	{
+		if (polynom[i] != 0)
+		{
+			if (i > 1)
+			{
+				if (polynom[i] > 0)
+				{
+					printf("+%dx^%d",polynom[i], i);
+				}
+				else
+				{
+					printf("%dx^%d", polynom[i], i);
+				}
+			}
+			else if(i == 1)
+			{
+				if (polynom[i] > 0)
+				{
+					printf("+%dx", polynom[i]);
+				}
+				else
+				{
+					printf("%dx", polynom[i]);
+				}
+			}
+			else
+			{
+				if (polynom[i] > 0)
+				{
+					printf("+%d", polynom[i]);
+				}
+				else
+				{
+					printf("%d", polynom[i]);
+				}
+			}
+		}
+	}
+}
+
+int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, int* outResultSize)
 {
 	int* resultPolynom = (int*)calloc(PolynomMaxSize, sizeof(int));
 	char polynomSegments[PolynomMaxSize / 4 + 5][ExpressionMaxSize];
@@ -16,9 +60,9 @@ int* GetPolynomCoefficientArray(char polynome[PolynomMaxSize], int polynomSize, 
 	int segmentsCount = 0;
 	for (int i = 0, k = 0; i < polynomSize; i++)
 	{
-		if (polynome[i] != '+' && polynome[i] != '-')
+		if (polynom[i] != '+' && polynom[i] != '-')
 		{
-			polynomSegments[segmentsCount][k++] = polynome[i];
+			polynomSegments[segmentsCount][k++] = polynom[i];
 			if (i + 1 == polynomSize)
 				polynomSegments[segmentsCount][k] = '\0'; //string end
 		}
@@ -26,7 +70,7 @@ int* GetPolynomCoefficientArray(char polynome[PolynomMaxSize], int polynomSize, 
 		{
 			polynomSegments[segmentsCount][k] = '\0'; //string end
 			k = 0;
-			polynomSegments[++segmentsCount][k++] = polynome[i];
+			polynomSegments[++segmentsCount][k++] = polynom[i];
 		}
 	}
 	segmentsCount++;
@@ -85,44 +129,103 @@ int* GetPolynomCoefficientArray(char polynome[PolynomMaxSize], int polynomSize, 
 	return resultPolynom;
 }
 
-int* GetPolynomSum(char polynome1[PolynomMaxSize], int polynom1Size, char polynome2[PolynomMaxSize], int polynom2Size, int* outResultSize)
+int* GetPolynomsSum(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2[PolynomMaxSize], int polynom2Size, int* outResultSize)
 {
+	int size = fmax(polynom1Size, polynom2Size);
+	int* resultPolynom = (int*)calloc(size, sizeof(int));
 
+	for (int i = 0; i < size; i++)
+		resultPolynom[i] = polynom1[i] + polynom2[i];
+
+	int i = size - 1;
+	while (i >= 0)
+	{
+		if (resultPolynom[i] != 0)
+			break;
+
+		i--;
+	}
+
+	*outResultSize = i + 1;
+	return resultPolynom;
 }
 
+int* GetPolynomsSubstract(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2[PolynomMaxSize], int polynom2Size, int* outResultSize)
+{
+	int size = fmax(polynom1Size, polynom2Size);
+	int* resultPolynom = (int*)calloc(size, sizeof(int));
+
+	for (int i = 0; i < size; i++)
+		resultPolynom[i] = polynom1[i] - polynom2[i];
+
+	int i = size - 1;
+	while (i >= 0)
+	{
+		if (resultPolynom[i] != 0)
+			break;
+
+		i--;
+	}
+
+	*outResultSize = i + 1;
+	return resultPolynom;
+}
 
 int main(void)
 {
-	char* polynome1 = (char*)malloc(PolynomMaxSize);
-	char* polynome2 = (char*)malloc(PolynomMaxSize);
-	char action[6];
+	char* polynom1 = (char*)malloc(PolynomMaxSize);
+	char* polynom2 = (char*)malloc(PolynomMaxSize);
+	char action;
 
-	strcpy(polynome1, "5x^3+2x^2+x+1");
-	strcpy(polynome2, "1x^3+5x+3");
+	//TODO Remove after testing
+	strcpy(polynom1, "5x^3+2x^2+x+1");
+	strcpy(polynom2, "1x^3+5x+3");
 
 
-	fgets(polynome1, PolynomMaxSize, stdin);
-	fgets(action, PolynomMaxSize, stdin);
-	fgets(polynome2, sizeof(polynome2), stdin);
+	scanf("%s", polynom1);
+	getchar();// <== remove newline
+	scanf("%c", &action);
+	getchar();
+	if (action != '\'')
+		scanf("%s", polynom2);
 
-	int polynome1Size = strlen(polynome1);
-	int polynome2Size = strlen(polynome2);
+	int polynom1Size = strlen(polynom1);
+	int polynom2Size = strlen(polynom2);
 
-	int resultSize1 = 0;
-	int* resultPolynom1 = GetPolynomCoefficientArray(polynome1, polynome1Size, &resultSize1);
+	int coefficients1Size = 0;
+	int* polynom1Coefficients = GetPolynomCoefficientArray(polynom1, polynom1Size, &coefficients1Size);
+	free(polynom1);
 
-	int resultSize2 = 0;
-	int* resultPolynom2 = GetPolynomCoefficientArray(polynome2, polynome2Size, &resultSize2);
+	int coefficients2Size = 0;
+	int* polynom2Coefficients = GetPolynomCoefficientArray(polynom2, polynom2Size, &coefficients2Size);
+	free(polynom2);
 
-	/*for (int i = 0; i < resultSize1; i++)
+	int* resultPolynom = NULL, resultSize = 0;
+	switch (action)
 	{
-		printf("%d ", resultPolynom1[i]);
-	}*/
+	case'+':
+		resultPolynom = GetPolynomsSum(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize);
+		break;
+	case'-':
+		resultPolynom = GetPolynomsSubstract(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize);
+		break;
+	case'*':
 
-	free(polynome1);
-	free(polynome2);
-	free(resultPolynom1);
-	free(resultPolynom2);
+		break;
+	case'/':
+		break;
+	case'\'':
+
+		break;
+	default:
+		printf("Wrong Action!!!");
+		break;
+	}
+
+	PrintPolynom(resultPolynom, resultSize);
+
+	free(polynom1Coefficients);
+	free(polynom2Coefficients);
 
 	return 0;
 }
