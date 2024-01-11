@@ -7,7 +7,6 @@
 
 #define PolynomMaxSize 50
 
-//TODO Minimaize array size
 void PrintPolynom(int polynom[PolynomMaxSize], int size)
 {
 	printf("\n");
@@ -64,7 +63,7 @@ int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, i
 	int segmentsCount = 0;
 	for (int i = 0, k = 0; i < polynomSize; i++)
 	{
-		if (polynom[i] != '+' && polynom[i] != '-')
+		if (polynom[i] != '+' && polynom[i] != '-' || i == 0)
 		{
 			polynomSegments[segmentsCount][k++] = polynom[i];
 			if (i + 1 == polynomSize)
@@ -238,17 +237,6 @@ int* DevidePolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2
 		return NULL;
 	}
 	int* q;
-	/*if (polynom1Size == polynom2Size)
-	{
-		int temp = polynom1[polynom1Size - 1] / polynom2[polynom2Size - 1];
-		q = (int*)malloc(1 * sizeof(int));
-		q[0] = temp;
-		*outResultSize = 1;
-		MultiplyPolynomToNumber(polynom2, polynom2Size, temp);
-		*outRemainderPolynom = GetPolynomsSubstract(polynom1, polynom1Size, polynom2, polynom2Size, outReminderSize);
-		return q;
-	}*/
-
 	int index = (polynom1Size - 1) - (polynom2Size - 1);
 	*outResultSize = index + 1;
 
@@ -286,11 +274,6 @@ int main(void)
 	char* polynom1 = (char*)malloc(PolynomMaxSize);
 	char* polynom2 = (char*)malloc(PolynomMaxSize);
 	char action;
-
-	//TODO Remove after testing
-	strcpy(polynom1, "5x^3+2x^2+x+1");
-	strcpy(polynom2, "1x^3+5x+3");
-
 
 	scanf("%s", polynom1);
 	getchar();// <== remove newline
