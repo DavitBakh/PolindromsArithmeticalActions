@@ -109,6 +109,7 @@ int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, i
 		{
 			index = atoi(indexStr);
 			free(indexStr);
+			indexStr = NULL;
 		}
 		else
 		{
@@ -251,7 +252,8 @@ int* DevidePolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2
 	int index = (polynom1Size - 1) - (polynom2Size - 1);
 	*outResultSize = index + 1;
 
-	q = (int*)calloc((index + 1) , sizeof(int));
+	q = (int*)calloc((index + 1), sizeof(int));
+	int* polynom2Copy = (int*)malloc(polynom2Size * sizeof(int));
 
 	while (polynom1Size >= polynom2Size)
 	{
@@ -259,7 +261,6 @@ int* DevidePolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2
 		index = (polynom1Size - 1) - (polynom2Size - 1);
 		q[index] = coefficient;
 
-		int* polynom2Copy = (int*)malloc(polynom2Size * sizeof(int));
 		int copySize = polynom2Size;
 		for (int i = 0; i < polynom2Size; i++)
 			polynom2Copy[i] = polynom2[i];
@@ -272,7 +273,6 @@ int* DevidePolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2
 
 		polynom1 = temp;
 		polynom1Size = tempSize;
-
 	}
 
 	*outRemainderPolynom = polynom1;
@@ -305,10 +305,12 @@ int main(void)
 	int coefficients1Size = 0;
 	int* polynom1Coefficients = GetPolynomCoefficientArray(polynom1, polynom1Size, &coefficients1Size);
 	free(polynom1);
+	polynom1 = NULL;
 
 	int coefficients2Size = 0;
 	int* polynom2Coefficients = GetPolynomCoefficientArray(polynom2, polynom2Size, &coefficients2Size);
 	free(polynom2);
+	polynom2 = NULL;
 
 	int* resultPolynom = NULL, resultSize = 0;
 	int* remainderPolynom = NULL, remainderSize = 0;
@@ -335,11 +337,19 @@ int main(void)
 	}
 
 	PrintPolynom(resultPolynom, resultSize);
-	PrintPolynom(remainderPolynom, remainderSize);
+	if (remainderPolynom != NULL)
+	{
+		PrintPolynom(remainderPolynom, remainderSize);
+		free(remainderPolynom);
+		remainderPolynom = NULL;
+	}
 
 	free(polynom1Coefficients);
+	polynom1Coefficients = NULL;
 	free(polynom2Coefficients);
+	polynom2Coefficients = NULL;
 	free(resultPolynom);
+	resultPolynom = NULL;
 
 	return 0;
 }
