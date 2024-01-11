@@ -4,16 +4,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <windows.h>
 
 #define PolynomMaxSize 50
-#define ExpressionMaxSize 10
 
 //TODO Minimaize array size
 void PrintPolynom(int polynom[PolynomMaxSize], int size)
 {
-	HANDLE  hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, 2);
 	printf("\n");
 
 	for (int i = size - 1; i >= 0; i--)
@@ -58,14 +54,12 @@ void PrintPolynom(int polynom[PolynomMaxSize], int size)
 
 	if (size == 0)
 		printf("0");
-
-	SetConsoleTextAttribute(hConsole, 15);
 }
 
 int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, int* outResultSize)
 {
 	int* resultPolynom = (int*)calloc(PolynomMaxSize, sizeof(int));
-	char polynomSegments[PolynomMaxSize / 4 + 5][ExpressionMaxSize];
+	char polynomSegments[PolynomMaxSize / 4 + 5][10]; //10 expression max size
 
 	int segmentsCount = 0;
 	for (int i = 0, k = 0; i < polynomSize; i++)
@@ -98,7 +92,7 @@ int* GetPolynomCoefficientArray(char polynom[PolynomMaxSize], int polynomSize, i
 
 		char* indexStr = NULL;
 
-		for (int j = 1; j < expressionSize; j++) //j = 1 cause first element nam ne interesno
+		for (int j = 1; j < expressionSize; j++)
 		{
 			if (current[j] == '^')
 			{
@@ -214,6 +208,79 @@ int* MultiplyPolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polyno
 	return resultPolynom;
 }
 
+void MultiplyPolynomToNumber(int polynom[PolynomMaxSize], int size, int number)
+{
+	for (int i = 0; i < size; i++)
+		polynom[i] *= number;
+}
+
+void PowPolynom(int** polynom, int* size, int x)
+{
+	*polynom = realloc(*polynom, ((*size) + x) * sizeof(int));
+	for (int i = *size - 1; i >= 0; i--)
+	{
+		(*polynom)[i + x] = (*polynom)[i];
+		if (i < x)
+			(*polynom)[i] = 0;
+	}
+	*size += x;
+}
+
+int* DevidePolynoms(int polynom1[PolynomMaxSize], int polynom1Size, int polynom2[PolynomMaxSize], int polynom2Size, int* outResultSize, int** outRemainderPolynom, int* outReminderSize)
+{
+	if (polynom1Size < polynom2Size)
+	{
+		*outRemainderPolynom = polynom1;
+		*outReminderSize = polynom1Size;
+
+		*outResultSize = 0;
+		return NULL;
+	}
+	int* q;
+	/*if (polynom1Size == polynom2Size)
+	{
+		int temp = polynom1[polynom1Size - 1] / polynom2[polynom2Size - 1];
+		q = (int*)malloc(1 * sizeof(int));
+		q[0] = temp;
+		*outResultSize = 1;
+		MultiplyPolynomToNumber(polynom2, polynom2Size, temp);
+		*outRemainderPolynom = GetPolynomsSubstract(polynom1, polynom1Size, polynom2, polynom2Size, outReminderSize);
+		return q;
+	}*/
+
+	int index = (polynom1Size - 1) - (polynom2Size - 1);
+	*outResultSize = index + 1;
+
+	q = (int*)calloc((index + 1) , sizeof(int));
+
+	while (polynom1Size >= polynom2Size)
+	{
+		int coefficient = polynom1[polynom1Size - 1] / polynom2[polynom2Size - 1];
+		index = (polynom1Size - 1) - (polynom2Size - 1);
+		q[index] = coefficient;
+
+		int* polynom2Copy = (int*)malloc(polynom2Size * sizeof(int));
+		int copySize = polynom2Size;
+		for (int i = 0; i < polynom2Size; i++)
+			polynom2Copy[i] = polynom2[i];
+
+		MultiplyPolynomToNumber(polynom2Copy, copySize, coefficient);
+		PowPolynom(&polynom2Copy, &copySize, index);
+
+		int tempSize = 0;
+		int* temp = GetPolynomsSubstract(polynom1, polynom1Size, polynom2Copy, copySize, &tempSize);
+
+		polynom1 = temp;
+		polynom1Size = tempSize;
+
+	}
+
+	*outRemainderPolynom = polynom1;
+	*outReminderSize = polynom1Size;
+	return q;
+
+}
+
 int main(void)
 {
 	char* polynom1 = (char*)malloc(PolynomMaxSize);
@@ -244,6 +311,7 @@ int main(void)
 	free(polynom2);
 
 	int* resultPolynom = NULL, resultSize = 0;
+	int* remainderPolynom = NULL, remainderSize = 0;
 	switch (action)
 	{
 	case'+':
@@ -256,7 +324,7 @@ int main(void)
 		resultPolynom = MultiplyPolynoms(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize);
 		break;
 	case'/':
-
+		resultPolynom = DevidePolynoms(polynom1Coefficients, coefficients1Size, polynom2Coefficients, coefficients2Size, &resultSize, &remainderPolynom, &remainderSize);
 		break;
 	case'\'':
 		resultPolynom = GetPolynomDerivative(polynom1Coefficients, coefficients1Size, &resultSize);
@@ -267,6 +335,7 @@ int main(void)
 	}
 
 	PrintPolynom(resultPolynom, resultSize);
+	PrintPolynom(remainderPolynom, remainderSize);
 
 	free(polynom1Coefficients);
 	free(polynom2Coefficients);
